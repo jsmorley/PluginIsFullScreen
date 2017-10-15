@@ -1,1 +1,1 @@
-# PluginIsFullScreen
+#IsFullScreen plugin for Rainmeter
