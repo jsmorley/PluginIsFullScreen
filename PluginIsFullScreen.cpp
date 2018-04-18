@@ -1,12 +1,11 @@
 #include <Windows.h>
+#include <Psapi.h>
+#include <string>
 #include "../../API/RainmeterAPI.h"
-
-RECT appBounds;
-RECT screenBounds;
-HWND foregroundHandle;
 
 struct Measure
 {
+	std::wstring name;
 	Measure() {}
 };
 
@@ -24,8 +23,12 @@ PLUGIN_EXPORT void Reload(void* data, void* rm, double* maxValue)
 PLUGIN_EXPORT double Update(void* data)
 {
 	Measure* measure = (Measure*)data;
+	measure->name.clear();
 
-	foregroundHandle = GetForegroundWindow();
+	double found = 0.0;
+	RECT appBounds = { 0 };
+	RECT screenBounds = { 0 };
+	HWND foregroundHandle = GetForegroundWindow();
 
 	GetWindowRect(GetDesktopWindow(), &screenBounds);
 
@@ -34,22 +37,36 @@ PLUGIN_EXPORT double Update(void* data)
 		GetWindowRect(foregroundHandle, &appBounds);
 		if (EqualRect(&appBounds, &screenBounds))
 		{
-			return 1.0;
+			DWORD procId;
+			GetWindowThreadProcessId(foregroundHandle, &procId);
+
+			HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procId);
+			if (process)
+			{
+				WCHAR name[MAX_PATH];
+				if (0 != GetModuleBaseName(process, NULL, name, MAX_PATH))
+				{
+					measure->name = name;
+					found = 1.0;
+				}
+
+				CloseHandle(process);
+			}
 		}
 	}
 
-	return 0.0;
+	return found;
 }
 
-//PLUGIN_EXPORT LPCWSTR GetString(void* data)
-//{
-//	Measure* measure = (Measure*)data;
-//	return L"";
-//}
+PLUGIN_EXPORT LPCWSTR GetString(void* data)
+{
+	Measure* measure = (Measure*)data;
+	return measure->name.c_str();
+}
 
 //PLUGIN_EXPORT void ExecuteBang(void* data, LPCWSTR args)
 //{
-//	Measure* measure = (Measure*)data;
+//   Measure* measure = (Measure*)data;
 //}
 
 PLUGIN_EXPORT void Finalize(void* data)
