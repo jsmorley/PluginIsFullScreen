@@ -8,8 +8,8 @@
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,0
- PRODUCTVERSION 3,0,2,2161
+ FILEVERSION 2,2,0,0
+ PRODUCTVERSION 4,1,0,2989
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -24,15 +24,15 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "FileVersion", "2.0.0.0"
+            VALUE "FileVersion", "2.2.0.0"
             VALUE "LegalCopyright", "© 2018 - Jeffrey Morley"
 
             // Don't change the entries below!
             VALUE "ProductName", "Rainmeter"
 #ifdef _WIN64
-            VALUE "ProductVersion", "3.0.2.2161 (64-bit)"
+            VALUE "ProductVersion", "4.1.0.2989 (64-bit)"
 #else
-            VALUE "ProductVersion", "3.0.2.2161 (32-bit)"
+            VALUE "ProductVersion", "4.1.0.2989 (32-bit)"
 #endif //_WIN64
         END
     END

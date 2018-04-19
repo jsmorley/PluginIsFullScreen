@@ -5,7 +5,7 @@
 
 struct Measure
 {
-	std::wstring name;
+	std::wstring processName;
 	Measure() {}
 };
 
@@ -23,9 +23,9 @@ PLUGIN_EXPORT void Reload(void* data, void* rm, double* maxValue)
 PLUGIN_EXPORT double Update(void* data)
 {
 	Measure* measure = (Measure*)data;
-	measure->name.clear();
+	measure->processName.clear();
 
-	double found = 0.0;
+	double fullScreenFound = 0.0;
 	RECT appBounds = { 0 };
 	RECT screenBounds = { 0 };
 	HWND foregroundHandle = GetForegroundWindow();
@@ -37,31 +37,31 @@ PLUGIN_EXPORT double Update(void* data)
 		GetWindowRect(foregroundHandle, &appBounds);
 		if (EqualRect(&appBounds, &screenBounds))
 		{
-			DWORD procId;
-			GetWindowThreadProcessId(foregroundHandle, &procId);
+			DWORD processPID;
+			GetWindowThreadProcessId(foregroundHandle, &processPID);
 
-			HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procId);
-			if (process)
+			HANDLE processInfo = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
+			if (processInfo)
 			{
-				WCHAR name[MAX_PATH];
-				if (0 != GetModuleBaseName(process, NULL, name, MAX_PATH))
+				WCHAR processName[MAX_PATH];
+				if (0 != GetModuleBaseName(processInfo, NULL, processName, MAX_PATH))
 				{
-					measure->name = name;
-					found = 1.0;
+					measure->processName = processName;
+					fullScreenFound = 1.0;
 				}
 
-				CloseHandle(process);
+				CloseHandle(processInfo);
 			}
 		}
 	}
 
-	return found;
+	return fullScreenFound;
 }
 
 PLUGIN_EXPORT LPCWSTR GetString(void* data)
 {
 	Measure* measure = (Measure*)data;
-	return measure->name.c_str();
+	return measure->processName.c_str();
 }
 
 //PLUGIN_EXPORT void ExecuteBang(void* data, LPCWSTR args)
