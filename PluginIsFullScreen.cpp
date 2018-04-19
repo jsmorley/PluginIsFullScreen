@@ -34,24 +34,25 @@ PLUGIN_EXPORT double Update(void* data)
 
 	if (foregroundHandle != GetDesktopWindow() && foregroundHandle != GetShellWindow())
 	{
+		DWORD processPID;
+		GetWindowThreadProcessId(foregroundHandle, &processPID);
+
+		HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
+		if (processHandle)
+		{
+			WCHAR processName[MAX_PATH];
+			if (0 != GetModuleBaseName(processHandle, NULL, processName, MAX_PATH))
+			{
+				measure->processName = processName;
+			}
+
+			CloseHandle(processHandle);
+		}
+
 		GetWindowRect(foregroundHandle, &appBounds);
 		if (EqualRect(&appBounds, &screenBounds))
 		{
-			DWORD processPID;
-			GetWindowThreadProcessId(foregroundHandle, &processPID);
-
-			HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
-			if (processHandle)
-			{
-				WCHAR processName[MAX_PATH];
-				if (0 != GetModuleBaseName(processHandle, NULL, processName, MAX_PATH))
-				{
-					measure->processName = processName;
-					foundFullScreen = 1.0;
-				}
-
-				CloseHandle(processHandle);
-			}
+			foundFullScreen = 1.0;
 		}
 	}
 
