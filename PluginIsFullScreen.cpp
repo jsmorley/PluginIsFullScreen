@@ -25,7 +25,7 @@ PLUGIN_EXPORT double Update(void* data)
 	Measure* measure = (Measure*)data;
 	measure->processName.clear();
 
-	double fullScreenFound = 0.0;
+	double foundFullScreen = 0.0;
 	RECT appBounds = { 0 };
 	RECT screenBounds = { 0 };
 	HWND foregroundHandle = GetForegroundWindow();
@@ -40,22 +40,22 @@ PLUGIN_EXPORT double Update(void* data)
 			DWORD processPID;
 			GetWindowThreadProcessId(foregroundHandle, &processPID);
 
-			HANDLE processInfo = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
-			if (processInfo)
+			HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
+			if (processHandle)
 			{
 				WCHAR processName[MAX_PATH];
-				if (0 != GetModuleBaseName(processInfo, NULL, processName, MAX_PATH))
+				if (0 != GetModuleBaseName(processHandle, NULL, processName, MAX_PATH))
 				{
 					measure->processName = processName;
-					fullScreenFound = 1.0;
+					foundFullScreen = 1.0;
 				}
 
-				CloseHandle(processInfo);
+				CloseHandle(processHandle);
 			}
 		}
 	}
 
-	return fullScreenFound;
+	return foundFullScreen;
 }
 
 PLUGIN_EXPORT LPCWSTR GetString(void* data)
